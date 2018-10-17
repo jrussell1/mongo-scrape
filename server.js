@@ -10,6 +10,10 @@ var app = express();
 
 var router = express.Router();
 
+
+//require routes 
+require("./config/routes")(router);
+
 app.use(express.static(__dirname + "/public"));
 
 //connect handlebars
