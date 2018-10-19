@@ -10,6 +10,10 @@ const logger = require("morgan");
 //Port
 const PORT = process.env.PORT || 8080;
 
+var MONGODB_URI = process.env.MONGODB_URI || "mongodb://localhost/mongoHeadlines";
+
+mongoose.connect(MONGODB_URI);
+
 //Middleware
 app.use(logger("dev"));
 app.use(bodyParser.json());
