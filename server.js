@@ -1,48 +1,45 @@
-// Dependencies
-var express = require("express");
-var mongoose = require("mongoose");
-var expressHandlebars = require("express-handlebars");
-var bodyParser = require("body-parser");
-//Define port
-var PORT = process.env.PORT || 3000;
+//Dependencies
+const express = require("express");
+const bodyParser = require("body-parser");
+const app = express();
+const exphbs = require("express-handlebars");
+const routes = require("./controllers/controller.js");
+const mongoose = require('mongoose');
+const logger = require("morgan");
 
-var app = express();
+//Port
+const PORT = process.env.PORT || 8080;
 
-var router = express.Router();
+//Middleware
+app.use(logger("dev"));
+app.use(bodyParser.json());
+app.use(bodyParser.json({ type: "application/vnd.api+json" }));
+app.use(bodyParser.urlencoded({ extended: true }));
+app.use(bodyParser.text());
 
+app.use(express.static("public"));
 
-//require routes 
-require("./config/routes")(router);
-
-app.use(express.static(__dirname + "/public"));
-
-//connect handlebars
-app.engine("handlebars", expressHandlebars({
-  defaultLayout: "main"
-}));
+//Handlebars
+app.engine("handlebars", exphbs({ defaultLayout: "main" }));
 app.set("view engine", "handlebars");
 
-//use bodyparser
-app.use(bodyParser.urlencoded({
-  extended: false
-}));
+// Routing
+app.use("/", routes);
 
-//every request go through middleware
-app.use(router);
+//Mongoose connection
+mongoose.Promise = global.Promise;
+const configDB = require('./config/database');
+mongoose.connect(configDB.url);
 
-//if depoloyed use deployed DB - otherwise local host
-var db = process.env.MONGODB_URI || "mongodb://localhost/mongoHeadlines";
+//Get the default connection
+const db = mongoose.connection;
 
-//connect mongoose to db
-mongoose.connect(db, function(error) {
-  if (error) {
-    console.log(error);
-  }
-  else {
-    console.log("mogoose connection is successful");
-  }
-});
-//listen on port 3000
-app.listen(PORT, function() {
-  console.log("Listening on port:" + PORT);
+//error connections
+db.on('error', console.error.bind(console, 'MongoDB connection error:'));
+
+db.once("open", function() {
+  console.log("Mongoose connection successful.");
+  app.listen(PORT, function() {
+  console.log("Listening on PORT: " + PORT);
+	});
 });
