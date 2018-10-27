@@ -1,5 +1,8 @@
 # mongo-scrape
 
+![alt text](./public/images/Capture.PNG)
+
+
 ## Overview
 
 A web app that lets users view, save and leave comments on the latest news.
